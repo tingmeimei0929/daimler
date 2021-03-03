@@ -1,0 +1,27 @@
+.form{
+    width: 600px;
+    margin: 100px auto;
+    border: 1px solid #333;
+
+    .el-form {
+        padding: 40px 20px;
+
+        .el-form-item{
+            padding: 5px 10px;
+            margin-bottom: 25px !important;
+            .el-input{
+                width: 80% !important;
+            }
+            .el-select{
+                width: 100% !important;
+                .el-select-dropdown{
+                    position:fixed !important;
+                    min-width: 320px !important;
+                }
+            }
+            .el-button {
+                width: 80%;
+            }
+        }
+    }
+}
