@@ -10,7 +10,6 @@ import VueAxios from 'vue-axios'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueAxios, axios)
-
 import './assets/scss/home.scss'
 import './assets/scss/common.scss'
 new Vue({
