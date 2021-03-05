@@ -17,13 +17,13 @@
                 <el-input v-model="ruleForm.contactMobilePhone"></el-input>
             </el-form-item>
             <el-form-item label="省份" prop="contactProvince" >
-                <el-select v-model="ruleForm.contactProvince" placeholder="请选择省份" @change="chooseProvince" :popper-append-to-body="false" >
-                    <el-option v-for="item in provinceData" :key="item.code" :label="item.name" :value="item.name "></el-option>
+                <el-select v-model="ruleForm.contactProvince" placeholder="请选择省份(直辖市)" clearable @change="renderCity" :popper-append-to-body="false" >
+                    <el-option v-for="item in provinceListAll" :key="item.name" :label="item.name" :value="item.name "></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="城市" prop="contactCityCn">
-                <el-select v-model="ruleForm.contactCityCn" placeholder="请选择城市"  :popper-append-to-body="false" >
-                    <el-option v-for="item in cityData"  :key="item.code" :label="item.name" :value="item.name"></el-option>
+                <el-select v-model="ruleForm.contactCityCn" placeholder="请选择城市" :popper-append-to-body="false" clearable >
+                    <el-option v-for="item in cityListAll"  :key="item.name" :label="item.name" :value="item.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="感兴趣的品牌" prop="leadInterestedVehicleBrand">
@@ -64,7 +64,6 @@
 </template>
 <script>
 import axios from 'axios';
-import provinceCity from '../assets/json/area.json'
 export default {
     name: "Home",
     data() {
@@ -75,9 +74,9 @@ export default {
                 callback(new Error('请输入数字值'))
             } else {
                 if (phoneReg.test(value)) {
-                callback()
+                    callback()
                 } else {
-                callback(new Error("手机号的值不规范，请修正！"))
+                    callback(new Error("手机号的值不规范，请修正！"))
                 }
             }
         }
@@ -136,42 +135,43 @@ export default {
                 "GLE SUV","GLE轿跑SUV","GLS SUV","G级越野车","V级MPV","威霆MPV","EQC纯电SUV","梅赛德斯-AMG","梅赛德斯-迈巴赫"
             ],
             dealerNdCodeList: ["经销商1","经销商2","经销商3","经销商4","经销商5",],
-            provinceData: [],
-            cityData: []
+            provinceListAll: [],
+            cityListAll: []
         }
     },
-    created: function() {
-        axios.get('../assets/json/area.json').then(res => {
-            this.provinceData = res.data;
-        }).catch(e => {
-            this.$message.error('网络连接超时')
-        })
-    },
     methods: {
-        // 选择省份
-        chooseProvince(value) {
-            this.contactCityCn = '';
-            this.cityData = [];
-            this.provinceData.map(e => {
-                // 遍历数组
-                if (value == e.name) {
-                    this.cityData = e.cityList;
-                    return;
+        //获取全国所有省份和城市的列表
+        getAllProvinceAndCityList () {
+            var that = this;
+            this.axios.get('https://restapi.amap.com/v3/config/district',{
+                // 高德地图的API
+                params: {
+                    key: '464bc4812a993f0ef2d1fdb5d4f03692',
+                    keywords: '中国',
+                    subdistrict: 3,
+                    extensions: 'base'
                 }
-            })
-        },
-        // 选择城市
-        chooseCity(value) {
-            this.cityData.map(e => {
-                // 遍历数据
-                if (value == e.name) {
-                    
-                } else {
-                    
+            }).then((response) => {
+                that.provinceListAll = response.data.districts[0].districts;
+                for (let i = 0; i < response.data.districts[0].districts.length; i++) {
+                    for (let j = 0; j < response.data.districts[0].districts[i].districts.length; j++) {
+                        that.cityListAll.push(response.data.districts[0].districts[i].districts[j]);
+                    }
                 }
-            })
+                console.log('省份',that.provinceListAll);
+                console.log('城市',that.cityListAll);
+            });
         },
-        // 获取当前日期
+        renderCity() {    // 根据选择的省份，展示该省份相对应的城市列表，未选择省份时，不能选择城市
+            if(this.ruleForm.contactProvince.length > 0) {
+                this.cityListAll = this.provinceListAll.filter(item => item.name == this.ruleForm.contactProvince)[0].districts;
+                this.citySelectAble = true;
+            } else if(!this.ruleForm.contactProvince) {
+                this.citySelectAble = false;
+                this.ruleForm.contactCityCn = '';     // 清空省份选择时，清空之前选择的城市能进行重新选择城市
+            }
+        },
+        //获取当前时间
         getNowTime() {
             var now = new Date();
             var year = now.getFullYear(); //得到年份
@@ -183,24 +183,17 @@ export default {
             var defaultDate = `${year}-${month}-${date}`;
             this.$set(this.ruleForm, "campaignMemberRegistrationDate", defaultDate);
         },
-        // 二级联动选择地区
-        choseProvince: function(prov) {
-            let tempCity = [];
-            this.cityList = [];
-            this.select
-        },
         // 表单提交
-        submitForm(formName) {
-            this.$refs[formName].validate(valid => {
+        submitForm (formName) {
+            this.$refs[formName].validate((vaild) => {
                 if(vaild) {
-                    alert('submit')
                     let formData = new FormData()
                     for(let key in this.ruleForm) {
                         formData.append(key, this.ruleForm[key])
                         console.log(formData.get[key])
                     }
                     this.axios.post('/medialead/mediaLead/upload', formData).then(res => {
-                        console.log(formData)
+                        console.log(res)
                         this.$message.success('Registration successful')
                     })
                 }else {
@@ -210,9 +203,18 @@ export default {
             })
         }
     },
+    watch: {   // watch 监听 ruleForm.contactProvince
+        'ruleForm.contactProvince': function (newValue, oldValue) {
+            this.ruleForm.contactCityCn = '';
+        }
+    },
+    created() {    // 页面加载时调用的函数
+        this.getAllProvinceAndCityList();
+    },
     mounted: function() {
         this.getNowTime()
     }
+
 };
 </script>
 <style lang="scss" scoped>
