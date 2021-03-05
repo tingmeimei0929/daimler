@@ -22,7 +22,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="城市" prop="contactCityCn">
-                <el-select v-model="ruleForm.contactCityCn" placeholder="请选择城市" :popper-append-to-body="false" clearable >
+                <el-select v-model="ruleForm.contactCityCn" placeholder="请选择城市" :popper-append-to-body="false" v-if="citySelectAble" clearable >
                     <el-option v-for="item in cityListAll"  :key="item.name" :label="item.name" :value="item.name"></el-option>
                 </el-select>
             </el-form-item>
@@ -100,9 +100,6 @@ export default {
                 contactLastname: [
                     {required: true, message: '姓的值缺失，请输入值！', trigger: 'blur'},
                 ],
-                contactFirstname: [
-                    {required: true, message: '名的值缺失，请输入值！', trigger: 'blur'},
-                ],
                 contactGender: [
                     {required: true, message: '性别的值缺失，请输入值！', trigger: 'blur'},
                 ],
@@ -136,7 +133,8 @@ export default {
             ],
             dealerNdCodeList: ["经销商1","经销商2","经销商3","经销商4","经销商5",],
             provinceListAll: [],
-            cityListAll: []
+            cityListAll: [],
+            citySelectAble: false
         }
     },
     methods: {
