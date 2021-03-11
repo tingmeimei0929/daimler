@@ -38,12 +38,10 @@
                     <el-option v-for="(item,index) in vehicleClassList" :key="index" :label="item" :value="item"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="经销商" prop="dealerNdCode">
-                <el-select v-model="ruleForm.dealerNdCode" placeholder="请选择经销商" :popper-append-to-body="false" >
-                    <el-option v-for="(item,index) in dealerNdCodeList" :key="index" :label="item" :value="item"></el-option>
-                </el-select>
+            <el-form-item label="经销商ND code" prop="dealerNdCode">
+                <el-input v-model="ruleForm.dealerNdCode" placeholder="请输入经销商ND code" >
+                </el-input>
             </el-form-item>
-
             <el-form-item label="数据来源" prop="leadDataSource">
                 <el-input v-model="ruleForm.leadDataSource"></el-input>
             </el-form-item>
@@ -131,7 +129,6 @@ export default {
                 "S级轿车","S级轿跑车","SLC敞篷跑车","GLA SUV","GLB SUV","GLC SUV","GLC轿跑SUV",
                 "GLE SUV","GLE轿跑SUV","GLS SUV","G级越野车","V级MPV","威霆MPV","EQC纯电SUV","梅赛德斯-AMG","梅赛德斯-迈巴赫"
             ],
-            dealerNdCodeList: ["经销商1","经销商2","经销商3","经销商4","经销商5",],
             provinceListAll: [],
             cityListAll: [],
             citySelectAble: false
@@ -190,7 +187,10 @@ export default {
                         formData.append(key, this.ruleForm[key])
                         console.log(formData.get[key])
                     }
-                    this.axios.post('/medialead/mediaLead/upload', formData).then(res => {
+                    this.axios.post('/medialead/mediaLead/upload', formData,
+                    {headers: {
+                        "x-api-key": "adf7f0c0-0b9d-4c75-bd1d-94515625f9f7"}
+                    }).then(res => {
                         console.log(res)
                         this.$message.success('Registration successful')
                     })
