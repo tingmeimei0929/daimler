@@ -4,7 +4,7 @@
             <el-form-item label="姓" prop="contactLastname">
                 <el-input v-model="ruleForm.contactLastname"></el-input>
             </el-form-item>
-            <el-form-item label="名" prop="contactFirstname">
+            <el-form-item label="名">
                 <el-input v-model="ruleForm.contactFirstname"></el-input>
             </el-form-item>
             <el-form-item label="性别" prop="contactGender">
@@ -16,12 +16,12 @@
             <el-form-item label="电话号码" prop="contactMobilePhone">
                 <el-input v-model="ruleForm.contactMobilePhone"></el-input>
             </el-form-item>
-            <el-form-item label="省份" prop="contactProvince" >
+            <el-form-item label="省份">
                 <el-select v-model="ruleForm.contactProvince" placeholder="请选择省份(直辖市)" clearable @change="renderCity" :popper-append-to-body="false" >
                     <el-option v-for="item in provinceListAll" :key="item.name" :label="item.name" :value="item.name "></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="城市" prop="contactCityCn">
+            <el-form-item label="城市">
                 <el-select v-model="ruleForm.contactCityCn" placeholder="请选择城市" :popper-append-to-body="false" v-if="citySelectAble" clearable >
                     <el-option v-for="item in cityListAll"  :key="item.name" :label="item.name" :value="item.name"></el-option>
                 </el-select>
@@ -48,7 +48,7 @@
             <el-form-item label="数据子来源" prop="leadDataSubSource">
                 <el-input v-model="ruleForm.leadDataSubSource"></el-input>
             </el-form-item>
-            <el-form-item label="日期" prop="campaignMemberRegistrationDate">
+            <el-form-item label="日期">
                 <el-date-picker placeholder="选择时间" v-model="ruleForm.campaignMemberRegistrationDate" value-format="yyyy-MM-dd" :disabled="true"></el-date-picker>
             </el-form-item>
             <el-form-item label="Campaign Name" prop="campaignName">
@@ -180,20 +180,32 @@ export default {
         },
         // 表单提交
         submitForm (formName) {
-            this.$refs[formName].validate((vaild) => {
-                if(vaild) {
-                    let formData = new FormData()
-                    for(let key in this.ruleForm) {
-                        formData.append(key, this.ruleForm[key])
-                        console.log(formData.get[key])
-                    }
-                    this.axios.post('/medialead/mediaLead/upload', formData,
-                    {headers: {
-                        "x-api-key": "adf7f0c0-0b9d-4c75-bd1d-94515625f9f7"}
-                    }).then(res => {
-                        console.log(res)
-                        this.$message.success('Registration successful')
-                    })
+            this.$refs[formName].validate(valid => {
+                if (valid) {
+                    this.axios.post('/medialead/mediaLead/upload',
+                        {
+                            'contactLastname': this.ruleForm.contactLastname,
+                            'contactFirstname': this.ruleForm.contactFirstname,
+                            'contactGender': this.ruleForm.contactGender,
+                            'contactMobilePhone': this.ruleForm.contactMobilePhone,
+                            'contactProvince': this.ruleForm.contactProvince,
+                            'contactCityCn': this.ruleForm.contactCityCn,
+                            'leadInterestedVehicleBrand': this.ruleForm.leadInterestedVehicleBrand,
+                            'leadInterestedVehicleClass': this.ruleForm.leadInterestedVehicleClass,
+                            'dealerNdCode': this.ruleForm.dealerNdCode,
+                            'leadDataSource': this.ruleForm.leadDataSource,
+                            'leadDataSubSource': this.ruleForm.leadDataSubSource,
+                            'campaignMemberRegistrationDate': this.ruleForm.campaignMemberRegistrationDate,
+                            'campaignName': this.ruleForm.campaignName,
+                        },
+                        {headers: {
+                            "x-api-key": "adf7f0c0-0b9d-4c75-bd1d-94515625f9f7",
+                            'Content-Type':"application/json"
+                        }
+                        }).then(res => {
+                            console.log(res)
+                            this.$message.success('Registration successful')
+                        })
                 }else {
                     console.log('error submit!');
                     return false;
@@ -218,3 +230,4 @@ export default {
 <style lang="scss" scoped>
 @import url('../assets/scss/home.scss');
 </style>
+
